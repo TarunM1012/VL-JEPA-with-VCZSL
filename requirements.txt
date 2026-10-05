@@ -1,0 +1,31 @@
+# video-czsl — install on a Narval LOGIN node (compute nodes are offline):
+#   module load python/3.10 cuda/12.2
+#   virtualenv --no-download ~/venvs/vczsl && source ~/venvs/vczsl/bin/activate
+#   pip install --upgrade pip
+#   pip install -r requirements.txt
+#
+# Pip prefers Alliance's local wheelhouse builds when they satisfy these pins,
+# and falls back to PyPI/GitHub for the rest.
+
+# Core
+torch>=2.1
+torchvision>=0.16
+numpy
+pyyaml
+tqdm
+scikit-learn
+
+# V-JEPA 2 backbone (VJEPA2Model added in 4.53; `dtype=` kwarg needs ~4.56+)
+transformers>=4.56
+safetensors
+
+# CLIP backbone (openai package, not HF)
+ftfy
+regex
+git+https://github.com/openai/CLIP.git
+
+# Video decoding for the Sth-com / SSv2 dataloader
+av
+
+# Tests
+pytest

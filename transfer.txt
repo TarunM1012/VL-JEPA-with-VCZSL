@@ -1,0 +1,7 @@
+Straight copy:
+1. models/loss.py
+
+Copy and fix:
+1. models/visual_encoder.py
+2. models/clip_encoder.py
+3. 

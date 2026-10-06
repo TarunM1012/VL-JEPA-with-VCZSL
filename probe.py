@@ -325,8 +325,8 @@ def print_report(name: str, r: dict) -> None:
 def parse_args():
     p = argparse.ArgumentParser(description=__doc__,
                                 formatter_class=argparse.RawDescriptionHelpFormatter)
-    p.add_argument("--verb", choices=["vjepa", "clip"], required=True)
-    p.add_argument("--obj", choices=["vjepa", "clip"], required=True)
+    p.add_argument("--verb", choices=["vjepa", "clip", "videomae"], required=True)
+    p.add_argument("--obj", choices=["vjepa", "clip", "videomae"], required=True)
     p.add_argument("--feat-root", default=_FEAT_ROOT)
     p.add_argument("--out-dir", default=os.environ.get("PROBE_ROOT", "probe_runs"))
     p.add_argument("--epochs", type=int, default=20)

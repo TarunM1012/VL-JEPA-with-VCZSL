@@ -3,6 +3,7 @@ Extract frozen backbone features for Sth-com once, cache them to disk, and
 train every probe/head on the cache afterwards.
 
 What gets saved per clip (fp16):
+    videomae : same layout as vjepa, from VideoMAE ViT-L (14×14 grid → G×G)
     vjepa : (8, G*G, 1024)  V-JEPA 2 last-layer tokens, one entry per temporal
             slot (2 frames), spatially average-pooled from the 16×16 grid to
             G×G (default G=4 → 16 cells). Keeping a small grid instead of one
@@ -93,6 +94,11 @@ def build_extractor(backbone: str, device: torch.device, grid: int = 4):
         from models.visual_encoder import VisualEncoder
         enc = VisualEncoder.load_pretrained(device=device, dtype=dtype)
         return make_vjepa_fn(enc, grid)
+
+    if backbone == "videomae":
+        from models.videomae_encoder import VideoMAEEncoder
+        enc = VideoMAEEncoder.load_pretrained(device=device, dtype=dtype)
+        return make_vjepa_fn(enc, grid)          # same token layout → same pooling
 
     if backbone == "clip":
         from models.clip_encoder import CLIPEncoder
@@ -205,7 +211,7 @@ def load_features(out_dir: Path | str, backbone: str, split: str,
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description=__doc__,
                                 formatter_class=argparse.RawDescriptionHelpFormatter)
-    p.add_argument("--backbone", choices=["vjepa", "clip"], required=True)
+    p.add_argument("--backbone", choices=["vjepa", "clip", "videomae"], required=True)
     p.add_argument("--split", nargs="+", default=["train", "val", "test"])
     p.add_argument("--out-dir", default=_DEFAULT_OUT)
     p.add_argument("--num-frames", type=int, default=16)

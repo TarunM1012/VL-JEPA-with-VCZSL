@@ -89,3 +89,15 @@ def test_end_to_end_learnable(tmp_path, monkeypatch):
     # cached: second call must not retrain
     assert (tmp_path / "probes" / "fake4d_verb.pt").exists()
     probe.print_report("fake", res)
+
+
+def test_c2c_eval_matches_probe_on_easy_data(tmp_path):
+    """C2C's evaluator and ours must agree when the answer is unambiguous."""
+    import c2c_eval
+    test_end_to_end_learnable(tmp_path, None)
+    meta = SthCom("test", split_root=tmp_path / "splits", video_root=tmp_path)
+    v = torch.load(tmp_path / "probes" / "fake4d_verb.pt", weights_only=False)
+    o = torch.load(tmp_path / "probes" / "fake4d_obj.pt", weights_only=False)
+    for score in ("logprob", "prob"):
+        r = c2c_eval.run(v, o, meta, score)
+        assert r["best_hm"] > 0.8 and 0 <= r["AUC"] <= 1

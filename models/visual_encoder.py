@@ -198,7 +198,7 @@ class VisualEncoder(nn.Module):
             top, left = (new_h - R) // 2, (new_w - R) // 2
             x = x[:, :, top:top + R, left:left + R]
 
-        x = (x - self._mean) / self._std
+        x = (x - self._mean.to(x.device)) / self._std.to(x.device)
         return x.reshape(*lead, 3, R, R)
 
     def num_slots(self, num_frames: int) -> int:

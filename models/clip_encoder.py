@@ -136,7 +136,10 @@ class CLIPEncoder(nn.Module):
             device=device if device is not None else "cpu",
             download_root=root,
         )
-        return cls(clip_model, preprocess)
+        encoder = cls(clip_model, preprocess)
+        # Move the wrapper too, so the mean/std buffers live on the model's
+        # device (clip.load only placed the CLIP weights there).
+        return encoder.to(device) if device is not None else encoder
 
     def train(self, mode: bool = True) -> "CLIPEncoder":
         # The backbone is frozen: keep it in eval mode even when a parent
@@ -193,7 +196,9 @@ class CLIPEncoder(nn.Module):
             # Bicubic can overshoot slightly outside [0, 1].
             x = x.clamp(0.0, 1.0)
 
-        x = (x - self._mean) / self._std
+        # .to(x.device) guards against the buffers and weights ever ending up
+        # on different devices (the bug that crashed the first extraction job).
+        x = (x - self._mean.to(x.device)) / self._std.to(x.device)
         return x.reshape(*lead, 3, R, R)
 
     # ------------------------------------------------------------------
